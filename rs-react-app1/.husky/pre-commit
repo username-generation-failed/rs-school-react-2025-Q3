@@ -1,0 +1,3 @@
+cd rs-react-app1
+npm run format:fix
+npm run lint
