@@ -1,1 +1,4 @@
-export { default as assert } from './assert';
+export { assert } from './assert';
+export { injectProps } from './injectProps';
+export { guard } from './guard';
+export { debounce } from './debounce';

@@ -2,7 +2,13 @@
   "compilerOptions": {
     "paths": {
       "~utils/*": ["./src/utils/*"],
-      "~utils": ["./src/utils/"]
+      "~utils": ["./src/utils/"],
+
+      "~lib/*": ["./src/lib/*"],
+      "~lib": ["./src/lib/"],
+
+      "~components/*": ["./src/components/*"],
+      "~features/*": ["./src/features/*"]
     }
   }
 }
