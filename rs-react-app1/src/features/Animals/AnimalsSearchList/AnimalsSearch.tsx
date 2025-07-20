@@ -2,8 +2,7 @@ import Search from '~components/Search';
 import { LocalStoragePersistor } from '~lib/Persistor';
 import { withPersist } from '~components/Persist';
 
-// eslint-disable-next-line react-refresh/only-export-components
-export default withPersist(
+const AnimalsSearch = withPersist(
   Search,
   { defaultValue: '' },
   {
@@ -13,3 +12,5 @@ export default withPersist(
   },
   new LocalStoragePersistor('animals_search_state_persistor')
 );
+
+export default AnimalsSearch;
