@@ -77,7 +77,10 @@ export class AsyncCommandManager<P, R> extends React.PureComponent<
     this.abortController?.abort();
   }
 
-  handleRequest = async (params: P) => {
+  handleRequest = (params: P) => {
+    this.handleRequestAsync(params);
+  }
+  handleRequestAsync = async (params: P) => {
     try {
       this.abortController = new AbortController();
       this.setState({ status: 'pending' });
