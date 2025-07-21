@@ -6,6 +6,7 @@ import {
 } from '~lib/Persistor';
 import type { Expand, Values } from '~utils/types';
 import { persistGateCountingSync } from './PersistGate';
+import { WaitHandle, type IWaitHandle } from '~lib/Concurrency/WaitHandle';
 
 type Setter<T extends unknown[]> = (...params: T) => void;
 
@@ -23,6 +24,8 @@ type InferMapSetters<O, K extends keyof O, DK extends keyof O> = {
     ? (data: InferData<O, DK>, props: Readonly<InferProps<O, DK, K>>) => O[I]
     : never;
 };
+
+let persistSchedulledHandle: IWaitHandle | undefined = undefined;
 
 export const withPersist = <
   P extends object,
@@ -95,14 +98,19 @@ export const withPersist = <
       });
     }
 
-    async persist() {
-      return persistor.persist(this.data);
+    private async persist() {
+      await persistor.persist(this.data);
     }
 
     persistLater() {
+      persistSchedulledHandle = persistSchedulledHandle ?? new WaitHandle();
       this.timeerId = setTimeout(async () => {
         this.timeerId = undefined;
-        await this.persist();
+        try {
+          await this.persist();
+        } finally {
+          persistSchedulledHandle?.notifyAll();
+        }
       });
     }
 
@@ -114,6 +122,9 @@ export const withPersist = <
       window.addEventListener('beforeunload', this.onBeforeUnload);
       persistGateCountingSync.increment();
 
+      if (persistSchedulledHandle !== undefined) {
+        await persistSchedulledHandle.wait();
+      }
       const data = await persistor.restore();
 
       if (data !== undefined) {
@@ -132,7 +143,7 @@ export const withPersist = <
         return;
       }
 
-      // componentWillUnmount triggers before it's children's one does
+      // componentWillUnmount triggers before its children's one does
       // in case there're any setters there
       // persist is postponed
       this.persistLater();
