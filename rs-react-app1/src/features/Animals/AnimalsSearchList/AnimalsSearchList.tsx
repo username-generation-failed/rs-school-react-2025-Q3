@@ -45,7 +45,7 @@ export class AnimalsSearchList extends React.PureComponent<Props, State> {
     return (
       <AsyncCommandManager command={command} exposeRequest={this.setRequest}>
         {(state) => {
-          if (state.is('sucess') || state.is('pending')) {
+          if (state.is('success') || state.is('pending')) {
             this.fullfilled = true;
           }
 
@@ -70,14 +70,14 @@ export class AnimalsSearchList extends React.PureComponent<Props, State> {
                 {state.is('pending') && (
                   <CardLoader sticky loaderWidthP={30} className="rounded-lg" />
                 )}
-                {state.is('sucess') && (
+                {state.is('success') && (
                   <AnimalsSearchListView
                     className="overflow-hidden rounded-lg"
                     items={state.result.result ?? []}
                   />
                 )}
 
-                {state.is('sucess') && state.result.result.length === 0 && (
+                {state.is('success') && state.result.result.length === 0 && (
                   <div className="absolute flex h-full w-full items-center justify-center rounded-lg border border-gray-300 dark:border-gray-600">
                     <p>Nothing Found</p>
                   </div>

@@ -25,11 +25,11 @@ type AsyncStateByStatus<T, S> = S extends 'idle'
         result?: T;
         status: 'pending';
       }
-    : S extends 'sucess'
+    : S extends 'success'
       ? {
           error?: undefined;
           result: T;
-          status: 'sucess';
+          status: 'success';
         }
       : S extends 'error'
         ? {
@@ -79,7 +79,7 @@ export class AsyncCommandManager<P, R> extends React.PureComponent<
 
   handleRequest = (params: P) => {
     this.handleRequestAsync(params);
-  }
+  };
   handleRequestAsync = async (params: P) => {
     try {
       this.abortController = new AbortController();
@@ -90,7 +90,7 @@ export class AsyncCommandManager<P, R> extends React.PureComponent<
         this.abortController.signal
       );
 
-      this.setState({ status: 'sucess', error: undefined, result });
+      this.setState({ status: 'success', error: undefined, result });
     } catch (error) {
       if (this.abortController?.signal.aborted) {
         return;
