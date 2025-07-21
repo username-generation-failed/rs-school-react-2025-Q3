@@ -7,7 +7,7 @@ import { guard } from '~utils';
 export type RequestFromCommand<C> =
   C extends IAsyncCommand<infer P, unknown> ? (params: P) => void : never;
 
-type Props<P, R> = {
+export type Props<P, R> = {
   command: IAsyncCommand<P, R>;
   exposeRequest: (request: (params: P) => void) => void;
   children: (passProps: Readonly<PassProps<R>>) => React.ReactNode;

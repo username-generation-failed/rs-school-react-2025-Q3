@@ -5,7 +5,7 @@ import FormManager from '~components/FormManager';
 
 import { SearchView } from './SearchView';
 
-type Props = {
+export type Props = {
   defaultValue?: string;
   onSearch: (query: string) => void;
 } & Exclude<React.HTMLAttributes<HTMLInputElement>, 'defaultValue'>;
