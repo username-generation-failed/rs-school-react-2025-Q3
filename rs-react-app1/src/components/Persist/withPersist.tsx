@@ -20,7 +20,7 @@ type InferMapSetters<O, K extends keyof O, DK extends keyof O> = {
   // Setter should have been (...params: any[]) => void;
   // and then it could have been written as "extends Setter"
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  [I in K]: O[I] extends Setter<infer R>
+  [I in K]: O[I] extends Setter<infer _R>
     ? (data: InferData<O, DK>, props: Readonly<InferProps<O, DK, K>>) => O[I]
     : never;
 };
