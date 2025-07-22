@@ -1,13 +1,19 @@
 import type { Expand } from '~utils/types';
 
-type InferProps<T extends object, K extends keyof T> = Expand<Omit<T, K>>;
+type InferWrapperProps<
+  WrappedProps extends object,
+  InjectedKeys extends keyof WrappedProps,
+> = Expand<Omit<WrappedProps, InjectedKeys>>;
 
-export const injectProps = <P extends object, IK extends keyof P>(
-  Component: React.ComponentType<P>,
-  injectedProps: Pick<P, IK>
-): React.ComponentType<InferProps<P, IK>> => {
-  type Props = InferProps<P, IK>;
-  type InjectedProps = Pick<P, IK>;
+export const injectProps = <
+  WrappedProps extends object,
+  InjectedKeys extends keyof WrappedProps,
+>(
+  Component: React.ComponentType<WrappedProps>,
+  injectedProps: Pick<WrappedProps, InjectedKeys>
+): React.ComponentType<InferWrapperProps<WrappedProps, InjectedKeys>> => {
+  type Props = InferWrapperProps<WrappedProps, InjectedKeys>;
+  type InjectedProps = Pick<WrappedProps, InjectedKeys>;
   const PropsInjector = (props: Props) => {
     // the culprit for unknown is Expand<> type
     // without it casting not needed

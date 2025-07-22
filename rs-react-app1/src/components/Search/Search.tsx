@@ -4,6 +4,7 @@ import { object, string, type InferType } from 'yup';
 import FormManager from '~components/FormManager';
 
 import { SearchView } from './SearchView';
+import { omit } from '~utils/Object';
 
 export type Props = {
   defaultValue?: string;
@@ -22,25 +23,14 @@ export class Search extends React.PureComponent<Props> {
   };
 
   render() {
-    const {
-      defaultValue,
-      // destruct it to omit from inputProps
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      onSearch,
-      ...inputProps
-    } = this.props;
+    const inputProps = omit(this.props, ['onSearch']);
     return (
       <FormManager
         schema={SearchRequestBodySchema}
         onSubmit={this.handleSubmit}
       >
         {({ InputWrap }) => (
-          <InputWrap
-            {...inputProps}
-            Wrap={SearchView}
-            name="query"
-            defaultValue={defaultValue}
-          />
+          <InputWrap {...inputProps} Wrap={SearchView} name="query" />
         )}
       </FormManager>
     );

@@ -3,6 +3,7 @@ import { act, render, screen } from '~test-utils/testing-react';
 import { ErrorBoundary } from './ErrorBoundary';
 import userEvent from '@testing-library/user-event';
 import { mockConsole } from '~test-utils/mockConsole';
+import { createMockComponent } from '~test-utils/createMockComponent';
 
 const CHILD_TEST_ID = 'child';
 const FALLBACK_TEST_ID = 'fallback';
@@ -11,7 +12,7 @@ const FallbackComponent = (props: { reset?: () => void }) => {
   const { reset } = props;
   return <div data-testid={FALLBACK_TEST_ID} onClick={reset} />;
 };
-const ChildComponent = () => <div data-testid={CHILD_TEST_ID} />;
+const ChildComponent = createMockComponent(CHILD_TEST_ID);
 const FallbackComponentMock = vi.fn(FallbackComponent);
 const ChildComponentMock = vi.fn(ChildComponent);
 const onErrorMock = vi.fn();

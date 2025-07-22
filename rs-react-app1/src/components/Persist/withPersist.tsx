@@ -10,36 +10,46 @@ import { WaitHandle, type IWaitHandle } from '~lib/Concurrency/WaitHandle';
 
 type Setter<T extends unknown[]> = (...params: T) => void;
 
-type InferProps<O, DK extends keyof O, SK extends keyof O> = Expand<
-  Omit<O, DK | SK> & Partial<Pick<O, SK>>
+type InferWrapperProps<
+  WrappedProps,
+  DataKeys extends keyof WrappedProps,
+  SettersKeys extends keyof WrappedProps,
+> = Expand<
+  Omit<WrappedProps, DataKeys | SettersKeys> &
+    Partial<Pick<WrappedProps, SettersKeys>>
 >;
-type InferData<T, K extends keyof T> = Expand<Pick<T, K>>;
+type InferData<WrappedProps, K extends keyof WrappedProps> = Expand<
+  Pick<WrappedProps, K>
+>;
 
-type InferMapSetters<O, K extends keyof O, DK extends keyof O> = {
-  // have to write wierd shit like "extends Setter<infer R>" this becase any is forbidden, bruh
-  // Setter should have been (...params: any[]) => void;
-  // and then it could have been written as "extends Setter"
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  [I in K]: O[I] extends Setter<infer _R>
-    ? (data: InferData<O, DK>, props: Readonly<InferProps<O, DK, K>>) => O[I]
+type InferMapSetters<
+  WrappedProps,
+  SetterKeys extends keyof WrappedProps,
+  DataKeys extends keyof WrappedProps,
+> = {
+  [I in SetterKeys]: WrappedProps[I] extends Setter<infer R> | undefined
+    ? (
+        data: InferData<WrappedProps, DataKeys>,
+        props: Readonly<InferWrapperProps<WrappedProps, DataKeys, SetterKeys>>
+      ) => Setter<R>
     : never;
 };
 
 let persistSchedulledHandle: IWaitHandle | undefined = undefined;
 
 export const withPersist = <
-  P extends object,
-  IK extends keyof P,
-  SK extends keyof P,
+  WrappedProps extends object,
+  DataKeys extends keyof WrappedProps,
+  SettersKeys extends keyof WrappedProps,
 >(
-  Component: ComponentType<P>,
-  defaultData: InferData<P, IK>,
-  mapSetters: InferMapSetters<P, SK, IK>,
-  _persistor: IPersistor<InferData<P, IK>>
-): ComponentType<InferProps<P, IK, SK>> => {
-  type Data = InferData<P, IK>;
-  type Props = InferProps<P, IK, SK>;
-  type MappedSetters = InferMapSetters<P, SK, IK>;
+  Component: ComponentType<WrappedProps>,
+  defaultData: InferData<WrappedProps, DataKeys>,
+  mapSetters: InferMapSetters<WrappedProps, SettersKeys, DataKeys>,
+  _persistor: IPersistor<InferData<WrappedProps, DataKeys>>
+): ComponentType<InferWrapperProps<WrappedProps, DataKeys, SettersKeys>> => {
+  type Data = InferData<WrappedProps, DataKeys>;
+  type Props = InferWrapperProps<WrappedProps, DataKeys, SettersKeys>;
+  type MappedSetters = InferMapSetters<WrappedProps, SettersKeys, DataKeys>;
   type Setters = {
     [K in keyof MappedSetters]: ReturnType<MappedSetters[K]>;
   };
@@ -78,11 +88,11 @@ export const withPersist = <
     assignSetters() {
       Object.keys(mapSetters).forEach((key) => {
         const handleSetter = (...params: SetterParameters) => {
-          const f = mapSetters[key as SK](this.data, this.props);
+          const f = mapSetters[key as SettersKeys](this.data, this.props);
           f(...params);
           persistor.invalidate();
 
-          const parentCb = this.props?.[key as SK] as
+          const parentCb = this.props?.[key as SettersKeys] as
             | Setter<SetterParameters>
             | undefined;
           parentCb?.(...params);
@@ -161,35 +171,3 @@ export const withPersist = <
 
   return WithPersistWrap;
 };
-
-//#########################################################
-// usage example
-//#########################################################
-// declare const Component: React.ComponentType<{
-//   foo: number;
-//   fooDynamic: number;
-//   bar: string;
-//   onSomething: (value: number) => void;
-//   onSomethingElse: () => string;
-// }>;
-// declare const persistor: IPersistor<{ foo: number }>;
-// const A = withPersist(
-//   Component,
-//   { foo: 1 },
-//   {
-//     onSomething: (data, props) => (value) =>
-//       (data.foo = value + props.fooDynamic),
-//   },
-//   persistor
-// );
-// const a = <A bar={'bar'} fooDynamic={1} onSomethingElse={() => '123'} />;
-// const b = (
-//   <A
-//     bar={'bar'}
-//     fooDynamic={1}
-//     onSomethingElse={() => '123'}
-//     onSomething={(value) => {
-//       console.log(value);
-//     }}
-//   />
-// );

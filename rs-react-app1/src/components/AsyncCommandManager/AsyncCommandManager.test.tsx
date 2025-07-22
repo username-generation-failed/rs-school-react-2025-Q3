@@ -5,11 +5,9 @@ import { faker } from '@faker-js/faker';
 import type { AsyncState, IAsyncCommand } from '~lib/types';
 import { RequestError, UnexpectedError } from '~lib/Errors';
 import { mockConsole } from '~test-utils/mockConsole';
+import { createMockAsyncCommand } from '~test-utils/createMockAsyncCommand';
 
-const commandMock = {
-  exec: vi.fn(),
-};
-
+const commandMock = createMockAsyncCommand();
 commandMock satisfies IAsyncCommand;
 
 const childMock = (props: AsyncState<unknown>) => {
