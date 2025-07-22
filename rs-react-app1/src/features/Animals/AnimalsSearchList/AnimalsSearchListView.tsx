@@ -1,78 +1,56 @@
+import AnimalsSearch from './AnimalsSearch';
+import { is } from '~components/AsyncCommandManager/AsyncCommandManager';
+import { AnimalsListView } from './AnimalsListView';
 import clsx from 'clsx';
-import type { Animal } from '../types';
-import type { KeysArray } from '~utils/Object/types';
-import type { ReactHTMLProps } from '~utils/types';
+import { CardLoader } from '~components/Loader';
+import { ErrorMessage } from '~components/ErrorMessage';
+import type { AsyncState } from '~lib/types';
+import type { PaginatedResponceDto } from '../types';
 
 type Props = {
-  items: Animal[];
-} & ReactHTMLProps<HTMLElement>;
-
-const k: KeysArray<Animal> = [
-  'earthAnimal',
-  'earthInsect',
-  'feline',
-  'avian',
-  'canine',
-];
-
-const prettyCategoryTable: Record<string, string | undefined> = {
-  earthAnimal: 'earth animal',
-  earthInsect: 'earth insect',
-};
-
-const getPrettyCategories = (animal: Animal) => {
-  return k.filter((c) => animal[c]).map((c) => prettyCategoryTable[c] ?? c);
+  fullfilled: boolean;
+  state: AsyncState<PaginatedResponceDto>;
+  onSearch: (value: string) => void;
 };
 
 export const AnimalsSearchListView = (props: Props) => {
-  const { items, className, ...rest } = props;
-
-  if (items.length === 0) {
-    return null;
-  }
-
-  const thead = (
-    <thead className="bg-gray-50 text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400">
-      <tr>
-        <th scope="col" className="px-6 py-3">
-          name
-        </th>
-        <th scope="col" className="px-6 py-3">
-          Categories
-        </th>
-      </tr>
-    </thead>
-  );
-
-  const body = (
-    <tbody>
-      {items.map((item) => (
-        <tr
-          key={item.uid}
-          className="border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
-        >
-          <td
-            scope="row"
-            className="px-6 py-4 font-medium whitespace-nowrap text-gray-900 dark:text-white"
-          >
-            {item.name}
-          </td>
-          <td className="px-6 py-4">{getPrettyCategories(item).join(', ')}</td>
-        </tr>
-      ))}
-    </tbody>
-  );
-
+  const { state, fullfilled, onSearch } = props;
   return (
-    <table
+    <div
       className={clsx(
-        'w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400',
-        className
+        'm-auto flex min-h-full w-lg max-w-lg grow-1 flex-col pb-6'
       )}
-      {...(rest as ReactHTMLProps<HTMLTableElement>)}
     >
-      {thead}
-      {body}
-    </table>
+      <div
+        className={clsx(
+          'z-50',
+          fullfilled || is(state, 'pending')
+            ? 'sticky top-0 my-6'
+            : 'absolute top-[50%] w-lg translate-y-[-50%]'
+        )}
+      >
+        <AnimalsSearch onSearch={onSearch} />
+      </div>
+
+      <div className={clsx('relative grow-1')}>
+        {is(state, 'pending') && (
+          <CardLoader sticky loaderWidthP={30} className="rounded-lg" />
+        )}
+        {is(state, 'success') && (
+          <AnimalsListView
+            className="overflow-hidden rounded-lg"
+            items={state.result.result}
+          />
+        )}
+
+        {is(state, 'success') && state.result.result.length === 0 && (
+          <div className="absolute flex h-full w-full items-center justify-center rounded-lg border border-gray-300 dark:border-gray-600">
+            <p>Nothing Found</p>
+          </div>
+        )}
+
+        {is(state, 'error') && <ErrorMessage error={state.error} />}
+      </div>
+    </div>
   );
 };
