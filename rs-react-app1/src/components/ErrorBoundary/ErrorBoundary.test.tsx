@@ -1,8 +1,8 @@
 import { expect, describe, it, vi, afterEach } from 'vitest';
 import { act, render, screen } from '~test-utils/testing-react';
 import { ErrorBoundary } from './ErrorBoundary';
-import { afterAll } from 'vitest';
 import userEvent from '@testing-library/user-event';
+import { mockConsole } from '~test-utils/mockConsole';
 
 const CHILD_TEST_ID = 'child';
 const FALLBACK_TEST_ID = 'fallback';
@@ -51,11 +51,7 @@ afterEach(() => {
   vi.resetAllMocks();
 });
 
-const err = console.error;
-console.error = () => {};
-afterAll(() => {
-  console.error = err;
-});
+mockConsole('error');
 
 describe('ErrorBoundary', {}, () => {
   it('Renders child success', async () => {

@@ -1,9 +1,10 @@
-import { afterAll, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { act, render } from '~test-utils/testing-react';
 import { AsyncCommandManager, type Props } from './AsyncCommandManager';
 import { faker } from '@faker-js/faker';
 import type { AsyncState, IAsyncCommand } from '~lib/types';
 import { RequestError, UnexpectedError } from '~lib/Errors';
+import { mockConsole } from '~test-utils/mockConsole';
 
 const commandMock = {
   exec: vi.fn(),
@@ -20,12 +21,6 @@ const childMock = (props: AsyncState<unknown>) => {
 };
 
 const renderChildMock = vi.fn<Props<unknown, unknown>['children']>(childMock);
-const log = console.log;
-console.log = vi.fn();
-
-afterAll(() => {
-  console.log = log;
-});
 
 const setup = async () => {
   let handleRequest: <P>(params: P) => void = () => {};
@@ -103,6 +98,7 @@ describe('AsyncCommandManager', {}, () => {
   });
 
   it('Handle unexpected error', async () => {
+    mockConsole('log');
     const err = new Error('mock scarry error');
     commandMock.exec.mockRejectedValue(err);
 
@@ -119,6 +115,7 @@ describe('AsyncCommandManager', {}, () => {
   });
 
   it('Handle unexpected something', async () => {
+    mockConsole('log');
     const err = 'I identify myself as an Error';
     commandMock.exec.mockRejectedValue(err);
 
