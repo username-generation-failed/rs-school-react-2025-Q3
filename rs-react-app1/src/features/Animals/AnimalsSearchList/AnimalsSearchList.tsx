@@ -28,7 +28,6 @@ export class AnimalsSearchList extends React.PureComponent<Props, State> {
   request!: SearchRequest;
 
   handleSearch = (query: string) => {
-    this.fullfilled = true;
     this.request({ ...this.state, name: query });
   };
 
@@ -42,11 +41,7 @@ export class AnimalsSearchList extends React.PureComponent<Props, State> {
     return (
       <AsyncCommandManager command={command} exposeRequest={this.setRequest}>
         {(state) => (
-          <AnimalsSearchListView
-            state={state}
-            fullfilled={this.fullfilled}
-            onSearch={this.handleSearch}
-          />
+          <AnimalsSearchListView state={state} onSearch={this.handleSearch} />
         )}
       </AsyncCommandManager>
     );

@@ -7,14 +7,13 @@ import { ErrorMessage } from '~components/ErrorMessage';
 import type { AsyncState } from '~lib/types';
 import type { PaginatedResponceDto } from '../types';
 
-type Props = {
-  fullfilled: boolean;
+export type Props = {
   state: AsyncState<PaginatedResponceDto>;
   onSearch: (value: string) => void;
 };
 
 export const AnimalsSearchListView = (props: Props) => {
-  const { state, fullfilled, onSearch } = props;
+  const { state, onSearch } = props;
   return (
     <div
       className={clsx(
@@ -24,9 +23,9 @@ export const AnimalsSearchListView = (props: Props) => {
       <div
         className={clsx(
           'z-50',
-          fullfilled || is(state, 'pending')
-            ? 'sticky top-0 my-6'
-            : 'absolute top-[50%] w-lg translate-y-[-50%]'
+          is(state, 'idle')
+            ? 'absolute top-[50%] w-lg translate-y-[-50%]'
+            : 'sticky top-0 my-6'
         )}
       >
         <AnimalsSearch onSearch={onSearch} />
