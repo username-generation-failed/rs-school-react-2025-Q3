@@ -1,6 +1,6 @@
 import React from 'react';
 import { APP_ERROR_TYPE, UnexpectedError } from '~lib/Errors';
-import type { IAsyncCommand } from '~lib/types';
+import type { AsyncStatus, IAsyncCommand } from '~lib/types';
 import type { IAppError, AsyncState } from '~lib/types';
 import { guard } from '~utils';
 
@@ -13,7 +13,7 @@ export type Props<P, R> = {
   children: (passProps: Readonly<PassProps<R>>) => React.ReactNode;
 };
 
-type AsyncStateByStatus<T, S> = S extends 'idle'
+export type AsyncStateByStatus<T, S> = S extends 'idle'
   ? {
       error?: undefined;
       result?: undefined;
@@ -42,7 +42,7 @@ type AsyncStateByStatus<T, S> = S extends 'idle'
 type PassProps<R> = AsyncState<R>;
 
 type State<R> = PassProps<R>;
-export function is<T, S extends string>(
+export function is<T, S extends AsyncStatus>(
   state: AsyncState<T>,
   status: S
 ): state is AsyncStateByStatus<T, S> {
