@@ -1,6 +1,6 @@
 import AnimalsSearch from './AnimalsSearch';
 import { is } from '~components/AsyncCommandManager/AsyncCommandManager';
-import { AnimalsListView } from './AnimalsListView';
+import { AnimalsList } from './AnimalsList';
 import clsx from 'clsx';
 import { CardLoader } from '~components/Loader';
 import { ErrorMessage } from '~components/ErrorMessage';
@@ -37,7 +37,7 @@ export const AnimalsSearchListView = (props: Props) => {
           <CardLoader sticky loaderWidthP={30} className="rounded-lg" />
         )}
         {is(state, 'success') && (
-          <AnimalsListView
+          <AnimalsList
             className="overflow-hidden rounded-lg"
             items={state.result.result}
           />

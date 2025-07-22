@@ -7,7 +7,7 @@ type Props = {
   items: Animal[];
 } & ReactHTMLProps<HTMLElement>;
 
-export const AnimalsListView = (props: Props) => {
+export const AnimalsList = (props: Props) => {
   const { items, className, ...rest } = props;
 
   if (items.length === 0) {
