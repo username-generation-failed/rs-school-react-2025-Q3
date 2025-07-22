@@ -1,26 +1,10 @@
-import type { KeysArray } from '~utils/Object/types';
 import type { Animal } from '../types';
+import { getPrettyCategories } from './getPrettyCategories';
 
 type Props = {
   item: Animal;
 };
 
-const k: KeysArray<Animal> = [
-  'earthAnimal',
-  'earthInsect',
-  'feline',
-  'avian',
-  'canine',
-];
-
-const prettyCategoryTable: Record<string, string | undefined> = {
-  earthAnimal: 'earth animal',
-  earthInsect: 'earth insect',
-};
-
-const getPrettyCategories = (animal: Animal) => {
-  return k.filter((c) => animal[c]).map((c) => prettyCategoryTable[c] ?? c);
-};
 export const AnimalListItem = (props: Props) => {
   const { item } = props;
 
