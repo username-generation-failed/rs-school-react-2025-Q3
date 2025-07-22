@@ -15,36 +15,32 @@ export const AnimalsList = (props: Props) => {
   }
 
   const thead = (
-    <thead className="bg-gray-50 text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400">
-      <tr>
-        <th scope="col" className="px-6 py-3">
-          name
-        </th>
-        <th scope="col" className="px-6 py-3">
-          Categories
-        </th>
-      </tr>
-    </thead>
+    <div className="table-header-group bg-gray-50 text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400">
+      <div className="table-row">
+        <div className="table-cell px-6 py-3">name</div>
+        <div className="table-cell px-6 py-3">Categories</div>
+      </div>
+    </div>
   );
 
   const tbody = (
-    <tbody>
+    <div className="table-row-group">
       {items.map((item) => (
         <AnimalListItem key={item.uid} item={item} />
       ))}
-    </tbody>
+    </div>
   );
 
   return (
-    <table
+    <div
       className={clsx(
-        'w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400',
+        'table w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400',
         className
       )}
       {...(rest as ReactHTMLProps<HTMLTableElement>)}
     >
       {thead}
       {tbody}
-    </table>
+    </div>
   );
 };

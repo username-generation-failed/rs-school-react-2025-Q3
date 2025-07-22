@@ -11,17 +11,14 @@ export const AnimalListItem = (props: Props) => {
   const prettyCategories = getPrettyCategories(item).join(', ');
 
   return (
-    <tr
+    <div
       key={item.uid}
-      className="border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
+      className="table-row border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
     >
-      <td
-        scope="row"
-        className="px-6 py-4 font-medium whitespace-nowrap text-gray-900 dark:text-white"
-      >
+      <div className="table-cell px-6 py-4 font-medium whitespace-nowrap text-gray-900 dark:text-white">
         {item.name}
-      </td>
-      <td className="px-6 py-4">{prettyCategories}</td>
-    </tr>
+      </div>
+      <div className="table-cell px-6 py-4">{prettyCategories}</div>
+    </div>
   );
 };

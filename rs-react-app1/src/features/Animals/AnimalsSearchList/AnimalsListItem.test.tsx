@@ -6,15 +6,7 @@ import { generateAnimals } from '../test-utils';
 import { getPrettyCategories } from './getPrettyCategories';
 
 const setup = async (item: Animal) => {
-  const utils = await act(async () =>
-    render(
-      <table>
-        <tbody>
-          <AnimalListItem item={item} />
-        </tbody>
-      </table>
-    )
-  );
+  const utils = await act(async () => render(<AnimalListItem item={item} />));
 
   return {
     utils,
