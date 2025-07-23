@@ -16,9 +16,7 @@ type TM = {
   symbol: symbol;
   undefined: undefined;
   object: object;
-  //"The `Function` type accepts any function-like value." -- That's exactly what's needed
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-  function: Function;
+  function: (...params: unknown[]) => unknown;
 };
 
 export const guard =
