@@ -1,19 +1,19 @@
 import React from 'react';
 import { APP_ERROR_TYPE, UnexpectedError } from '~lib/Errors';
-import type { IAsyncCommand } from '~lib/types';
-import type { IAppError, AsyncState, AsyncStatus } from '~lib/types';
+import type { AsyncStatus, IAsyncCommand } from '~lib/types';
+import type { IAppError, AsyncState } from '~lib/types';
 import { guard } from '~utils';
 
 export type RequestFromCommand<C> =
   C extends IAsyncCommand<infer P, unknown> ? (params: P) => void : never;
 
-type Props<P, R> = {
+export type Props<P, R> = {
   command: IAsyncCommand<P, R>;
   exposeRequest: (request: (params: P) => void) => void;
   children: (passProps: Readonly<PassProps<R>>) => React.ReactNode;
 };
 
-type AsyncStateByStatus<T, S> = S extends 'idle'
+export type AsyncStateByStatus<T, S> = S extends 'idle'
   ? {
       error?: undefined;
       result?: undefined;
@@ -25,11 +25,11 @@ type AsyncStateByStatus<T, S> = S extends 'idle'
         result?: T;
         status: 'pending';
       }
-    : S extends 'sucess'
+    : S extends 'success'
       ? {
           error?: undefined;
           result: T;
-          status: 'sucess';
+          status: 'success';
         }
       : S extends 'error'
         ? {
@@ -39,19 +39,14 @@ type AsyncStateByStatus<T, S> = S extends 'idle'
           }
         : never;
 
-type PassProps<R> = AsyncState<R> & {
-  is<S extends AsyncStatus>(
-    this: AsyncState<R>,
-    status: S
-  ): this is AsyncStateByStatus<R, S>;
-};
+type PassProps<R> = AsyncState<R>;
 
 type State<R> = PassProps<R>;
-function is<T, S>(
-  this: AsyncState<T>,
+export function is<T, S extends AsyncStatus>(
+  state: AsyncState<T>,
   status: S
-): this is AsyncStateByStatus<T, S> {
-  return this.status === status;
+): state is AsyncStateByStatus<T, S> {
+  return state.status === status;
 }
 
 export class AsyncCommandManager<P, R> extends React.PureComponent<
@@ -66,7 +61,6 @@ export class AsyncCommandManager<P, R> extends React.PureComponent<
       status: 'idle',
       error: undefined,
       result: undefined,
-      is: is,
     };
 
     this.props.exposeRequest(this.handleRequest);
@@ -77,7 +71,10 @@ export class AsyncCommandManager<P, R> extends React.PureComponent<
     this.abortController?.abort();
   }
 
-  handleRequest = async (params: P) => {
+  handleRequest = (params: P) => {
+    this.handleRequestAsync(params);
+  };
+  handleRequestAsync = async (params: P) => {
     try {
       this.abortController = new AbortController();
       this.setState({ status: 'pending' });
@@ -87,7 +84,7 @@ export class AsyncCommandManager<P, R> extends React.PureComponent<
         this.abortController.signal
       );
 
-      this.setState({ status: 'sucess', error: undefined, result });
+      this.setState({ status: 'success', error: undefined, result });
     } catch (error) {
       if (this.abortController?.signal.aborted) {
         return;

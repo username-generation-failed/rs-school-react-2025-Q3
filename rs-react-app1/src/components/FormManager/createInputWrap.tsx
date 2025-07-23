@@ -1,5 +1,6 @@
 import type {
   ChangeEvent,
+  ComponentType,
   FormEventHandler,
   InputEvent,
   ReactNode,
@@ -7,7 +8,6 @@ import type {
 import React from 'react';
 import type { ValidationTrigger } from './FormManager';
 import { assert } from '~utils/assert';
-import type { ReactHTMLProps } from '~utils/types';
 
 export type InputLike = {
   onChange?: FormEventHandler<HTMLElement>;
@@ -21,37 +21,36 @@ type Handlers = {
 };
 
 type TagToElementMap = {
-  input: HTMLInputElement;
-  textarea: HTMLTextAreaElement;
-  select: HTMLSelectElement;
+  input: React.DetailedHTMLProps<
+    React.InputHTMLAttributes<HTMLInputElement>,
+    HTMLInputElement
+  >;
+  textarea: React.DetailedHTMLProps<
+    React.TextareaHTMLAttributes<HTMLTextAreaElement>,
+    HTMLTextAreaElement
+  >;
+  select: React.DetailedHTMLProps<
+    React.SelectHTMLAttributes<HTMLSelectElement>,
+    HTMLSelectElement
+  >;
 };
 
 export type AllowedTags = 'input' | 'textarea' | 'select';
 
-type PropsByTag<T extends AllowedTags> = ReactHTMLProps<TagToElementMap[T]>;
+type PropsByTag<T extends AllowedTags> = TagToElementMap[T];
 
-type InferProps<T extends InputLike, T2 extends AllowedTags> = [never] extends [
-  T2,
-]
-  ? T
-  : PropsByTag<T2>;
+type Props<T extends InputLike | AllowedTags> = T extends AllowedTags
+  ? PropsByTag<T> & {
+      Wrap: T;
+    }
+  : T extends InputLike
+    ? T & {
+        Wrap: ComponentType<T>;
+      }
+    : never;
 
-type InferWrapType<T extends InputLike, T2 extends AllowedTags> = [
-  never,
-] extends [T2]
-  ? React.ComponentType<T>
-  : PropsByTag<T2>;
-
-type Props<T extends InputLike, T2 extends AllowedTags = never> = InferProps<
-  T,
-  T2
-> & {
-  Wrap: InferWrapType<T, T2>;
-  wrap?: T2;
-};
-
-export type InputWrap = <T extends InputLike, T2 extends AllowedTags = never>(
-  props: Props<T, T2>
+export type InputWrap = <T extends InputLike | AllowedTags>(
+  props: Props<T>
 ) => React.ReactNode;
 
 export const createInputWrap = (
@@ -59,9 +58,8 @@ export const createInputWrap = (
   validationTrigger: ValidationTrigger
 ): InputWrap => {
   class WithInputWrapper<
-    T extends InputLike,
-    T2 extends AllowedTags = never,
-  > extends React.PureComponent<Props<T, T2>> {
+    T extends InputLike | AllowedTags,
+  > extends React.PureComponent<Props<T>> {
     passHandlers: Handlers;
 
     constructor(props: Props<T>) {
@@ -99,7 +97,7 @@ export const createInputWrap = (
       }
 
       const WrapCasted = Wrap as React.ComponentType<
-        Omit<Readonly<Props<T, T2>>, 'Wrap'> & Handlers
+        Omit<Readonly<Props<T>>, 'Wrap'> & Handlers
       >;
 
       return <WrapCasted {...props} />;

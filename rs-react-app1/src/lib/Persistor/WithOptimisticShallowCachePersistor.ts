@@ -24,10 +24,6 @@ export class WithOptimisticShallowCachePersistor<T extends object>
     this.optimisticDataContainer = [];
   }
 
-  getKey(): string {
-    return this.persistor.getKey();
-  }
-
   async persist(data: T): Promise<void> {
     if (this.prevData !== undefined) return;
     while (this.optimisticDataContainer.includes(data)) {

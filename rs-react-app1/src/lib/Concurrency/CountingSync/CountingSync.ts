@@ -8,10 +8,7 @@ export interface ICountingSync {
 
 export class CountingSync implements ICountingSync {
   private counter = 0;
-  // eslint issue. "void is only valid as a return type or generic type argument."
-  // this is generic type argument
-  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-  private promiseWithResolvers = Promise.withResolvers<void>();
+  private promiseWithResolvers = Promise.withResolvers();
 
   increment(): void {
     this.counter++;
@@ -19,7 +16,7 @@ export class CountingSync implements ICountingSync {
   decrement(): void {
     this.counter--;
     if (this.counter === 0) {
-      this.promiseWithResolvers.resolve();
+      this.promiseWithResolvers.resolve(undefined);
     }
     assert(this.counter >= 0, 'counter must be positive');
   }
@@ -27,7 +24,6 @@ export class CountingSync implements ICountingSync {
     if (this.counter === 0) return;
 
     await this.promiseWithResolvers.promise;
-    // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-    this.promiseWithResolvers = Promise.withResolvers<void>();
+    this.promiseWithResolvers = Promise.withResolvers();
   }
 }

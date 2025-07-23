@@ -9,7 +9,7 @@ export type IAppError = {
   humanFriendlyMessage?: string;
 };
 
-export type AsyncStatus = 'idle' | 'pending' | 'sucess' | 'error';
+export type AsyncStatus = 'idle' | 'pending' | 'success' | 'error';
 
 export type AsyncState<T> = {
   error?: IAppError;

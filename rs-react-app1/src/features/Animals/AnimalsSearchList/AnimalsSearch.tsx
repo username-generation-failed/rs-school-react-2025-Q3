@@ -1,15 +1,8 @@
-import Search from '~components/Search';
 import { LocalStoragePersistor } from '~lib/Persistor';
-import { withPersist } from '~components/Persist';
+import { animalsSearchFactory } from './animalsSearchFactory';
 
-// eslint-disable-next-line react-refresh/only-export-components
-export default withPersist(
-  Search,
-  { defaultValue: '' },
-  {
-    onSearch: (data) => (value) => {
-      data.defaultValue = value;
-    },
-  },
+const AnimalsSearch = animalsSearchFactory(
   new LocalStoragePersistor('animals_search_state_persistor')
 );
+
+export default AnimalsSearch;

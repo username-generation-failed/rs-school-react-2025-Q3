@@ -8,7 +8,9 @@
       "~lib": ["./src/lib/"],
 
       "~components/*": ["./src/components/*"],
-      "~features/*": ["./src/features/*"]
+      "~features/*": ["./src/features/*"],
+
+      "~test-utils/*": ["./src/test-utils/*"]
     }
   }
 }
