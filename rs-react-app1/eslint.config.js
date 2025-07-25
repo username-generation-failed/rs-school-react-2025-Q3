@@ -12,36 +12,37 @@ export default tseslint.config([
     ignores: ['**/node_modules/*', '**/coverage/*', '**/dist/*'],
   },
   {
-  extends: [
-    js.configs.recommended,
-    ...tseslint.configs.strict,
-    eslintPluginPrettier,
-  ],
-  files: ['src/**/*.{ts,tsx}', '*.{ts,tsx}'],
-  languageOptions: {
-    ecmaVersion: 2024,
-    globals: globals.browser,
-  },
-  plugins: {
-    react,
-    'react-hooks': reactHooks,
-    'react-refresh': reactRefresh,
-    'react-compiler': reactCompiler,
-  },
-  rules: {
-    ...reactHooks.configs.recommended.rules,
-    'react-refresh/only-export-components': [
-      'warn',
-      { allowConstantExport: true },
+    extends: [
+      js.configs.recommended,
+      ...tseslint.configs.strict,
+      eslintPluginPrettier,
     ],
-    'react-compiler/react-compiler': 'error',
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-    'react/prop-types': 'off',
-  },
-  settings: {
-    react: {
-      version: 'detect',
+    files: ['src/**/*.{ts,tsx}', '*.{ts,tsx}'],
+    languageOptions: {
+      ecmaVersion: 2024,
+      globals: globals.browser,
+    },
+    plugins: {
+      react,
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
+      'react-compiler': reactCompiler,
+    },
+    rules: {
+      ...reactHooks.configs.recommended.rules,
+      'react-refresh/only-export-components': [
+        'warn',
+        { allowConstantExport: true },
+      ],
+      'react-compiler/react-compiler': 'error',
+      ...react.configs.recommended.rules,
+      ...react.configs['jsx-runtime'].rules,
+      'react/prop-types': 'off',
+    },
+    settings: {
+      react: {
+        version: 'detect',
+      },
     },
   },
-}]);
+]);
