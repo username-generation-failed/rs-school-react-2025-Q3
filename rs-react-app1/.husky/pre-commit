@@ -1,2 +1,2 @@
 cd rs-react-app1
-npm run lint
+lint-staged
