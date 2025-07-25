@@ -7,8 +7,11 @@ import tseslint from 'typescript-eslint';
 import eslintPluginPrettier from 'eslint-plugin-prettier/recommended';
 import reactCompiler from 'eslint-plugin-react-compiler';
 
-export default tseslint.config({
-  ignores: ['node_modules/*', 'coverage/*', 'build/*'],
+export default tseslint.config([
+  {
+    ignores: ['**/node_modules/*', '**/coverage/*', '**/dist/*'],
+  },
+  {
   extends: [
     js.configs.recommended,
     ...tseslint.configs.strict,
@@ -41,4 +44,4 @@ export default tseslint.config({
       version: 'detect',
     },
   },
-});
+}]);
