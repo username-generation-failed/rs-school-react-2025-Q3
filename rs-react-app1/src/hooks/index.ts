@@ -1,0 +1,1 @@
+export { useDefaultProps } from './useDefaultProps';

@@ -9,3 +9,6 @@ export type Expand<T extends object> = T extends unknown
       [K in keyof T]: T[K];
     }
   : never;
+
+export type IsPartial<T, K extends keyof T> =
+  object extends Pick<T, K> ? true : false;

@@ -1,4 +1,10 @@
-import React, { type ComponentType } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ComponentType,
+} from 'react';
 import {
   WithOptimisticShallowCachePersistor,
   type ICachedPersistor,
@@ -7,6 +13,28 @@ import {
 import type { Expand, Values } from '~utils/types';
 import { persistGateCountingSync } from './PersistGate';
 import { WaitHandle, type IWaitHandle } from '~lib/Concurrency/WaitHandle';
+import Handlers from '~hooks/Handlers';
+import { createUseHandlers } from '~hooks/Handlers/Handlers';
+
+const useForceUpdate = () => {
+  const count = useRef(0);
+  const [state, setState] = useState(0);
+  const cbRef = useRef<() => void>(undefined);
+  const forceUpdate = useCallback((cb?: () => void) => {
+    cbRef.current = cb;
+    count.current++;
+    setState(count.current);
+  }, []);
+  useEffect(() => {
+    if (count.current === 0) return;
+    for (let i = 0; i < count.current; i++) {
+      cbRef.current?.();
+    }
+    count.current = 0;
+  }, [state]);
+
+  return forceUpdate;
+};
 
 type Setter<T extends unknown[]> = (...params: T) => void;
 
@@ -55,8 +83,6 @@ export const withPersist = <
   };
   type SetterParameters = Parameters<Values<Setters>>;
 
-  type State = object;
-
   const persistor: ICachedPersistor<Data> =
     new WithOptimisticShallowCachePersistor(_persistor);
 
@@ -66,26 +92,28 @@ export const withPersist = <
     UNMOUNTED: 4,
   } as const;
 
-  class WithPersistWrap extends React.PureComponent<Props, State> {
+  class WithPersistHandlers extends Handlers<
+    Props,
+    object,
+    {
+      forceUpdate: (cb?: () => void) => void;
+    }
+  > {
     data: Data;
     setters: Setters;
     timeerId: number | undefined;
-
     status: number;
-    constructor(props: Props) {
-      super(props);
+    constructor() {
+      super();
       this.data = { ...defaultData };
       this.setters = {} as Setters;
-      this.state = {
-        dataWasRestored: false,
-      };
-      this.assignSetters();
-
       this.timeerId = undefined;
       this.status = PERSIST_STATUS_FALGS.IDLE;
+      this.assignSetters();
     }
 
-    assignSetters() {
+    private assignSetters() {
+      const { status, timeerId, setters } = this;
       Object.keys(mapSetters).forEach((key) => {
         const handleSetter = (...params: SetterParameters) => {
           const f = mapSetters[key as SettersKeys](this.data, this.props);
@@ -97,22 +125,27 @@ export const withPersist = <
             | undefined;
           parentCb?.(...params);
 
-          if (this.status & PERSIST_STATUS_FALGS.UNMOUNTED) {
-            if (this.timeerId === undefined) {
+          if (status & PERSIST_STATUS_FALGS.UNMOUNTED) {
+            if (timeerId === undefined) {
               this.persistLater();
             }
           }
         };
 
-        this.setters[key as keyof Setters] = handleSetter as Values<Setters>;
+        setters[key as keyof Setters] = handleSetter as Values<Setters>;
       });
+      return setters;
     }
 
     private async persist() {
       await persistor.persist(this.data);
     }
 
-    persistLater() {
+    private onBeforeUnload = () => {
+      this.persist();
+    };
+
+    private persistLater() {
       persistSchedulledHandle = persistSchedulledHandle ?? new WaitHandle();
       this.timeerId = setTimeout(async () => {
         this.timeerId = undefined;
@@ -124,11 +157,7 @@ export const withPersist = <
       });
     }
 
-    onBeforeUnload = () => {
-      this.persist();
-    };
-
-    async componentDidMount(): Promise<void> {
+    onMount = async () => {
       window.addEventListener('beforeunload', this.onBeforeUnload);
       persistGateCountingSync.increment();
 
@@ -141,13 +170,13 @@ export const withPersist = <
         this.data = data;
       }
 
-      this.forceUpdate(() => {
+      this.scope.forceUpdate(() => {
         this.status |= PERSIST_STATUS_FALGS.RESTORED;
         persistGateCountingSync.decrement();
       });
-    }
+    };
 
-    componentWillUnmount(): void {
+    onUnmount = () => {
       window.removeEventListener('beforeunload', this.onBeforeUnload);
       if (!(this.status & PERSIST_STATUS_FALGS.RESTORED)) {
         return;
@@ -158,16 +187,29 @@ export const withPersist = <
       // persist is postponed
       this.persistLater();
       this.status |= PERSIST_STATUS_FALGS.UNMOUNTED;
-    }
-
-    render(): React.ReactNode {
-      const C = Component as unknown as React.ComponentType<
-        Readonly<Props> & Data & Setters
-      >;
-
-      return <C {...this.props} {...this.data} {...this.setters} />;
-    }
+    };
   }
+
+  const useWithPersistHandlers = createUseHandlers(
+    () => new WithPersistHandlers()
+  );
+
+  const WithPersistWrap = (props: Props) => {
+    const forceUpdate = useForceUpdate();
+
+    const handlers = useWithPersistHandlers(props, { forceUpdate });
+
+    useEffect(() => {
+      handlers.onMount();
+      return handlers.onUnmount;
+    }, [handlers]);
+
+    const C = Component as unknown as React.ComponentType<
+      Readonly<Props> & Data & Setters
+    >;
+
+    return <C {...props} {...handlers.data} {...handlers.setters} />;
+  };
 
   return WithPersistWrap;
 };
