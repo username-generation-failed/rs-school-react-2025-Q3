@@ -8,7 +8,7 @@ export const ErrorMessage = (props: Props) => {
   const { error } = props;
 
   return (
-    <div className="flex grow-1 items-center justify-center">
+    <div className="flex grow-1 flex-col items-center justify-center">
       <p>
         {error.name}: {error.message}
       </p>
