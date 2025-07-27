@@ -4,8 +4,7 @@ import type {
   GetDetailsByIdResponceDto,
   IGetDetailsById,
 } from './types';
-
-type GetDetailsByIdResponce = string;
+import type { Animal } from '~features/Animals/types';
 
 export class GetDetailsByIdRepo implements IGetDetailsById {
   httpClient: IHTTPClient;
@@ -17,18 +16,27 @@ export class GetDetailsByIdRepo implements IGetDetailsById {
   }
 
   async exec(
-    _params: GetDetailsByIdRequestDto,
+    params: GetDetailsByIdRequestDto,
     signal: AbortSignal
   ): Promise<GetDetailsByIdResponceDto> {
-    const responce = await this.httpClient.get<GetDetailsByIdResponce>(
+    const text = await this.httpClient.get<string>(
       'https://baconipsum.com/api/?type=meat-and-filler&paras=1&format=text',
       {
         signal,
       }
     );
 
+    const animal = await this.httpClient.get<{ animal: Animal }>(
+      `https://stapi.co/api/v1/rest/animal/`,
+      {
+        params: { uid: params.id },
+        signal,
+      }
+    );
+
     const responceDto: GetDetailsByIdResponceDto = {
-      text: responce,
+      text,
+      name: animal.animal.name,
     };
 
     return responceDto;

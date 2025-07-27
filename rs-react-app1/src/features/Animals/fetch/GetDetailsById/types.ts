@@ -5,6 +5,7 @@ export type GetDetailsByIdRequestDto = {
 };
 
 export type GetDetailsByIdResponceDto = {
+  name: string;
   text: string;
 };
 

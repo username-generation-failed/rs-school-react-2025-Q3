@@ -15,25 +15,26 @@ type Props = {
 
 export const Details = (props: Props) => {
   const { command } = props;
-  const [{ details }] = useSearchParams<SearchParams>();
+  const [{ details, query }] = useSearchParams<SearchParams>();
 
   const { state, request } = useAsyncCommand(command);
 
   useEffect(() => {
-    if (details === undefined) return;
+    if (details === undefined || query === undefined) return;
     request({ id: details });
-  }, [details, request]);
+  }, [details, request, query]);
 
-  if (details === undefined) return null;
+  if (details === undefined || query === undefined) return null;
 
   return (
     <div className={clsx('relative w-sm px-5')}>
-      <AsyncCard state={state}>
-        <div className="sticky top-0 flex h-screen flex-col justify-center">
+      <div className="sticky top-0 flex h-screen flex-col justify-center">
+        <AsyncCard state={state}>
           <CloseDetails />
-          {state.result?.text}
-        </div>
-      </AsyncCard>
+          <h4 className="text-lg">{state.result?.name}</h4>
+          <p className="text-gray-400">{state.result?.text}</p>
+        </AsyncCard>
+      </div>
     </div>
   );
 };
