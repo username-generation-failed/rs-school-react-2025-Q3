@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { useSearchParams } from '~hooks/useSearchParams';
 import { injectProps } from '~utils/react/injectProps';
-import type { IGetDetailsById } from '../fetch/GetDetailsById';
-import getDetailsById from '../fetch/GetDetailsById';
+import type { IGetDetailsById } from '../../fetch/GetDetailsById';
+import getDetailsById from '../../fetch/GetDetailsById';
 import { useAsyncCommand } from '~components/AsyncCommandManager/useAsyncCommand';
 import AsyncCard from '~components/AsyncCard';
 import clsx from 'clsx';
