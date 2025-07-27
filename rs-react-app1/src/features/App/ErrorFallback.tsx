@@ -1,5 +1,5 @@
 import Button from '~components/Button';
-import Page from '~components/Page';
+import Page from '~features/App/Page';
 
 type ViewProps = {
   reset: () => void;

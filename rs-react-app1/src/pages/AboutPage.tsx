@@ -1,4 +1,4 @@
-import Page from '~components/Page';
+import Page from '~features/App/Page';
 
 const AboutPage = () => {
   return (

@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router';
-import Page from '~components/Page';
+import Page from '~features/App/Page';
 import AnimalsSearchList from '~features/Animals/AnimalsSearchList/AnimalsSearchList';
 
 const SearchAnimalsPage = () => {
