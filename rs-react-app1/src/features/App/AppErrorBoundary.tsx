@@ -1,5 +1,5 @@
 import ErrorBoundary from '~components/ErrorBoundary';
-import { injectProps } from '~utils/injectProps';
+import { injectProps } from '~utils/react/injectProps';
 import ErrorFallback from './ErrorFallback';
 
 export const AppErrorBoundary = injectProps(ErrorBoundary, {

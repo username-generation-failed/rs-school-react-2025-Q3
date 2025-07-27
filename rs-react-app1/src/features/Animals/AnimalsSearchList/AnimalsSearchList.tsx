@@ -1,52 +1,74 @@
-import React from 'react';
-import AsyncCommandManager from '~components/AsyncCommandManager';
+import { useCallback, useEffect, useRef } from 'react';
+
 import type {
   ISearchAnimals,
   SearchAnimalsRequestDto,
 } from '../fetch/SearchAnimals';
-import type { RequestFromCommand } from '~components/AsyncCommandManager/AsyncCommandManager';
-import { injectProps } from '~utils/injectProps';
 import searchAnimals from '../fetch/SearchAnimals';
+
+import { injectProps } from '~utils/react/injectProps';
 import { AnimalsSearchListView } from './AnimalsSearchListView';
+import { useSearchParams } from '~hooks';
+import { useAsyncCommand } from '~components/AsyncCommandManager/useAsyncCommand';
+import type { SearchParams } from '../types';
 
 type Props = {
   command: ISearchAnimals;
 };
+// let pagesize be fixed for now
+const PAGE_SIZE = 25;
 
-type State = Omit<SearchAnimalsRequestDto, 'name'>;
+export const AnimalsSearchList = (props: Props) => {
+  const { command } = props;
+  const { request, state } = useAsyncCommand(command);
 
-type SearchRequest = RequestFromCommand<ISearchAnimals>;
+  const isIdlingRef = useRef(true);
+  const didMountPhaseRef = useRef(true);
 
-export class AnimalsSearchList extends React.PureComponent<Props, State> {
-  fullfilled = false;
+  const [{ page, query }, setSearchParams] = useSearchParams<SearchParams>();
+  const pageNumber = page !== undefined ? Number(page) : 1;
 
-  state: State = {
-    pageNumber: 0,
-    pageSize: 25,
-  };
+  const handleSearch = useCallback(
+    (query: string) => {
+      setSearchParams(query !== '' ? { query } : {});
+      isIdlingRef.current = false;
+    },
+    [setSearchParams]
+  );
 
-  request!: SearchRequest;
+  useEffect(() => {
+    const onUnmount = () => {
+      didMountPhaseRef.current = true;
+    };
+    if (
+      didMountPhaseRef.current === true &&
+      [page, query].every((v) => v === undefined)
+    ) {
+      didMountPhaseRef.current = false;
+      return onUnmount;
+    }
 
-  handleSearch = (query: string) => {
-    this.request({ ...this.state, name: query });
-  };
+    didMountPhaseRef.current = false;
 
-  setRequest = (request: SearchRequest) => {
-    this.request = request;
-  };
+    const searchAnimalsRequestDto: SearchAnimalsRequestDto = {
+      pageNumber: pageNumber - 1,
+      name: query ?? '',
+      pageSize: PAGE_SIZE,
+    };
 
-  render() {
-    const { command } = this.props;
+    request(searchAnimalsRequestDto);
+    return onUnmount;
+    // page is only needed on didMount stage, not on didUpdate stage
+  }, [pageNumber, query, request]);
 
-    return (
-      <AsyncCommandManager command={command} exposeRequest={this.setRequest}>
-        {(state) => (
-          <AnimalsSearchListView state={state} onSearch={this.handleSearch} />
-        )}
-      </AsyncCommandManager>
-    );
-  }
-}
+  return (
+    <AnimalsSearchListView
+      page={pageNumber}
+      state={state}
+      onSearch={handleSearch}
+    />
+  );
+};
 
 const AnimalsSearchListInjected = injectProps(AnimalsSearchList, {
   command: searchAnimals,

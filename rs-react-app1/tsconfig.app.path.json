@@ -7,7 +7,12 @@
       "~lib/*": ["./src/lib/*"],
       "~lib": ["./src/lib/"],
 
+      "~pages/*": ["./src/pages/*"],
+      "~pages": ["./src/pages"],
+
       "~components/*": ["./src/components/*"],
+      "~hooks/*": ["./src/hooks/*"],
+      "~hooks": ["./src/hooks"],
       "~features/*": ["./src/features/*"],
 
       "~test-utils/*": ["./src/test-utils/*"]
