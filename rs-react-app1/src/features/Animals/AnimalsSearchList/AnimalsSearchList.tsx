@@ -22,18 +22,17 @@ export const AnimalsSearchList = (props: Props) => {
   const { command } = props;
   const { request, state } = useAsyncCommand(command);
 
-  const isIdlingRef = useRef(true);
   const didMountPhaseRef = useRef(true);
 
-  const [{ page, query }, setSearchParams] = useSearchParams<SearchParams>();
+  const [{ page, query, details }, setSearchParams] =
+    useSearchParams<SearchParams>();
   const pageNumber = page !== undefined ? Number(page) : 1;
 
   const handleSearch = useCallback(
     (query: string) => {
-      setSearchParams(query !== '' ? { query } : {});
-      isIdlingRef.current = false;
+      setSearchParams(details ? { query, details } : { query });
     },
-    [setSearchParams]
+    [setSearchParams, details]
   );
 
   useEffect(() => {
