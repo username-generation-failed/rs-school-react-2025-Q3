@@ -4,7 +4,7 @@ import { act, render, screen } from '~test-utils/testing-react';
 import { createMockComponent } from '~test-utils/createMockComponent';
 import { AnimalsSearchListView, type Props } from './AnimalsSearchListView';
 import type { AsyncStatus } from '~lib/types';
-import type { AsyncStateByStatus } from '~components/AsyncCommandManager/AsyncCommandManager';
+import type { AsyncStateByStatus } from '~components/AsyncCommandManager/useAsyncCommand';
 import { generatePaginatedAnimals } from '../test-utils';
 import { RequestError } from '~lib/Errors';
 

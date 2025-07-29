@@ -4,7 +4,7 @@ import { faker } from '@faker-js/faker';
 export const generatePaginatedAnimals = (
   pageSize: number
 ): PaginatedResponceDto => ({
-  count: faker.number.int(pageSize),
+  count: faker.number.int({ min: pageSize }),
   pageSize,
   result: generateAnimals(pageSize),
 });

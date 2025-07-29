@@ -13,3 +13,9 @@ export type PaginatedResponceDto = {
   pageSize: number;
   result: Animal[];
 };
+
+export type SearchParams = {
+  page: string;
+  details: string;
+  query: string;
+};

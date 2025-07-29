@@ -1,4 +1,4 @@
-import React, { type PropsWithChildren } from 'react';
+import { useEffect, useState, type PropsWithChildren } from 'react';
 import {
   CountingSync,
   type ICountingSync,
@@ -12,26 +12,23 @@ type State = {
 export const createPersistGate = () => {
   const persistGateCountingSync: ICountingSync = new CountingSync();
 
-  class PersistGate extends React.PureComponent<Props, State> {
-    state: State = {
+  const PersistGate = (props: Props) => {
+    const [state, setState] = useState<State>({
       wasRestored: false,
-    };
+    });
 
-    async componentDidMount(): Promise<void> {
-      await persistGateCountingSync.wait();
-      this.setState({ wasRestored: true });
-    }
+    useEffect(() => {
+      persistGateCountingSync.wait().then(() => {
+        setState({ wasRestored: true });
+      });
+    }, []);
 
-    render(): React.ReactNode {
-      const { state, props } = this;
-
-      return (
-        <div style={{ visibility: state.wasRestored ? 'visible' : 'hidden' }}>
-          {props.children}
-        </div>
-      );
-    }
-  }
+    return (
+      <div style={{ visibility: state.wasRestored ? 'visible' : 'hidden' }}>
+        {props.children}
+      </div>
+    );
+  };
 
   return {
     persistGateCountingSync,

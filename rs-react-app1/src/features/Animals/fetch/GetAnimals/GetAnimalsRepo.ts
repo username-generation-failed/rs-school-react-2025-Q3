@@ -33,8 +33,8 @@ export const mapGetAnimalsResponceToDto = (
   responce: GetAnimalsResponce
 ): GetAnimalsResponceDto => {
   return {
-    count: responce.page.numberOfElements,
-    pageSize: responce.page.totalPages,
+    count: responce.page.totalElements,
+    pageSize: responce.page.pageSize,
     result: responce.animals,
   };
 };

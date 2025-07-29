@@ -3,9 +3,8 @@ import type {
   ComponentType,
   FormEventHandler,
   InputEvent,
-  ReactNode,
 } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { ValidationTrigger } from './FormManager';
 import { assert } from '~utils/assert';
 
@@ -57,52 +56,40 @@ export const createInputWrap = (
   handlers: Handlers,
   validationTrigger: ValidationTrigger
 ): InputWrap => {
-  class WithInputWrapper<
-    T extends InputLike | AllowedTags,
-  > extends React.PureComponent<Props<T>> {
-    passHandlers: Handlers;
+  const WithInputWrapper = <T extends InputLike | AllowedTags>(
+    props: Props<T>
+  ) => {
+    const { onChange, onInput, Wrap, ...rest } = props;
 
-    constructor(props: Props<T>) {
-      super(props);
-      this.passHandlers = {
-        onChange: handlers.onChange ?? this.handleChange,
-        onInput: handlers.onInput ?? this.handleInput,
-      };
+    const handleChange = (event: ChangeEvent<HTMLElement>) => {
+      handlers.onChange?.(event);
+      (onChange as FormEventHandler<HTMLElement>)?.(event);
+    };
 
+    const handleInput = (event: InputEvent<HTMLElement>) => {
+      handlers.onInput?.(event);
+      (onInput as FormEventHandler<HTMLElement>)?.(event);
+    };
+
+    useEffect(() => {
       assert(
         validationTrigger === 'submit',
         'Not implemented yet, use validationTrigger submit'
       );
-    }
+    }, []);
 
-    handleChange = (event: ChangeEvent<HTMLElement>) => {
-      handlers.onChange?.(event);
-      const props = this.props as InputLike;
-      props.onChange?.(event);
+    const wrappedProps = {
+      ...rest,
+      onInput: handleInput,
+      onChange: handleChange,
     };
 
-    handleInput = (event: InputEvent<HTMLElement>) => {
-      handlers.onInput?.(event);
-      const props = this.props as InputLike;
-      props.onInput?.(event);
-    };
-
-    render(): ReactNode {
-      const { Wrap, ...rest } = this.props;
-
-      const props = { ...rest, ...this.passHandlers };
-
-      if (typeof Wrap === 'string') {
-        return React.createElement(Wrap, props);
-      }
-
-      const WrapCasted = Wrap as React.ComponentType<
-        Omit<Readonly<Props<T>>, 'Wrap'> & Handlers
-      >;
-
-      return <WrapCasted {...props} />;
+    if (typeof Wrap === 'string') {
+      return React.createElement(Wrap, wrappedProps);
     }
-  }
+
+    return <Wrap {...wrappedProps} key={wrappedProps.name} />;
+  };
 
   return WithInputWrapper as unknown as InputWrap;
 };

@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { object, string, type InferType } from 'yup';
 
 import FormManager from '~components/FormManager';
 
 import { SearchView } from './SearchView';
-import { omit } from '~utils/Object';
 
 export type Props = {
   defaultValue?: string;
@@ -17,22 +16,20 @@ const SearchRequestBodySchema = object({
 
 type SearchRequestBody = InferType<typeof SearchRequestBodySchema>;
 
-export class Search extends React.PureComponent<Props> {
-  handleSubmit = (data: SearchRequestBody) => {
-    this.props.onSearch(data.query);
-  };
+export const Search = (props: Props) => {
+  const { onSearch, ...inputProps } = props;
+  const handleSubmit = useCallback(
+    (data: SearchRequestBody) => {
+      onSearch(data.query);
+    },
+    [onSearch]
+  );
 
-  render() {
-    const inputProps = omit(this.props, ['onSearch']);
-    return (
-      <FormManager
-        schema={SearchRequestBodySchema}
-        onSubmit={this.handleSubmit}
-      >
-        {({ InputWrap }) => (
-          <InputWrap {...inputProps} Wrap={SearchView} name="query" />
-        )}
-      </FormManager>
-    );
-  }
-}
+  return (
+    <FormManager schema={SearchRequestBodySchema} onSubmit={handleSubmit}>
+      {({ InputWrap }) => (
+        <InputWrap {...inputProps} Wrap={SearchView} name="query" />
+      )}
+    </FormManager>
+  );
+};

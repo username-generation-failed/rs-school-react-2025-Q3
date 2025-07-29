@@ -24,6 +24,7 @@ export default defineConfig(({ mode }) => ({
         'src/**/*.spec.{js,jsx,ts,tsx}',
         'src/main.{js,jsx,ts,tsx}',
         'src/**/*.d.ts',
+        'types.ts',
       ],
       thresholds: { statements: 80, branches: 50, functions: 50, lines: 50 },
     },
